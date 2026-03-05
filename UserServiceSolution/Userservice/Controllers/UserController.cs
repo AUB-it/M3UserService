@@ -30,7 +30,7 @@ public class UserController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet("userId")]
+    [HttpGet("{userId}")]
     public User Get(Guid userId)
     {
         return _users.Where(u => u.Id == userId).First();
