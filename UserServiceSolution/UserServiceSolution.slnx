@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/Userservice/">
+    <Project Path="Userservice/UserService.csproj" />
+  </Folder>
+</Solution>
