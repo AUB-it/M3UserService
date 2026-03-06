@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using UserService.Repositories.Interfaces;
 
 namespace UserService.Controllers;
 
@@ -7,33 +8,66 @@ namespace UserService.Controllers;
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
-
-    private static List<User> _users = new List<User>()
-    {
-        new()
-        {
-            Id = new Guid("c9fcbc4b-d2d1-4664-9079-dae78a1de446"),
-            Name = "JoMoney",
-            Address1 = "123 Main Street",
-            City = "London",
-            PostalCode = 420,
-            EmailAddress = "JoMoney@gmail.com",
-            PhoneNumber = "88888888"
-            
-        }
-    };
-
     private readonly ILogger<UserController> _logger;
+    private IUserRepository _userRepository;
 
-    public UserController(ILogger<UserController> logger)
+    public UserController(ILogger<UserController> logger, IUserRepository userRepository)
     {
         _logger = logger;
+        _userRepository = userRepository;
     }
 
-    [HttpGet("{userId}")]
-    public User Get(Guid userId)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] UserDTO user)
     {
-        return _users.Where(u => u.Id == userId).First();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var createdUser = await _userRepository.CreateUser(user);
+
+        return Ok(createdUser);
     }
-    
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var user = await _userRepository.GetUserById(id);
+
+        if (user == null)
+            return NotFound("Bruger ikke fundet.");
+
+        return Ok(user);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var users = await _userRepository.GetAllUsers();
+        return Ok(users);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UserDTO user)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var updatedUser = await _userRepository.UpdateUser(id, user);
+
+        if (updatedUser == null)
+            return NotFound("Bruger ikke fundet.");
+
+        return Ok(updatedUser);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var deleted = await _userRepository.DeleteUser(id);
+
+        if (!deleted)
+            return NotFound("Bruger ikke fundet.");
+
+        return NoContent();
+    }
 }

@@ -1,37 +1,23 @@
-﻿using System.ComponentModel.DataAnnotations;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models;
 
-public class User
+public class UserDTO
 {
-    [BsonId]
-    [BsonGuidRepresentation(GuidRepresentation.Standard)]
-    public Guid Id { get; set; }
-
     [Required]
     public string givenName { get; set; }
-
     [Required]
     public string familyName { get; set; }
-
     [Required]
     public string Address1 { get; set; }
-
     public string? Address2 { get; set; }
-
     public short PostalCode { get; set; }
-
     [Required]
     public string faxNumber { get; set; }
-
     [Required]
     public string City { get; set; }
-
     [Required]
     public string email { get; set; }
-
     [Required]
     public string telephone { get; set; }
 }
