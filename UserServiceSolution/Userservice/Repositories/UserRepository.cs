@@ -29,15 +29,15 @@ public class UserRepository : IUserRepository
         var newUser = new User
         {
             Id = Guid.NewGuid(),
-            givenName = user.givenName,
-            familyName = user.familyName,
+            GivenName = user.GivenName,
+            FamilyName = user.FamilyName,
             Address1 = user.Address1,
             Address2 = user.Address2,
             PostalCode = user.PostalCode,
-            faxNumber = user.faxNumber,
+            FaxNumber = user.FaxNumber,
             City = user.City,
-            email = user.email,
-            telephone = user.telephone
+            Email = user.Email,
+            Telephone = user.Telephone
         };
 
         await _collection.InsertOneAsync(newUser);
@@ -70,15 +70,15 @@ public class UserRepository : IUserRepository
         var updatedUser = new User
         {
             Id = existingUser.Id,
-            givenName = user.givenName,
-            familyName = user.familyName,
+            GivenName = user.GivenName,
+            FamilyName = user.FamilyName,
             Address1 = user.Address1,
             Address2 = user.Address2,
             PostalCode = user.PostalCode,
-            faxNumber = user.faxNumber,
+            FaxNumber = user.FaxNumber,
             City = user.City,
-            email = user.email,
-            telephone = user.telephone
+            Email = user.Email,
+            Telephone = user.Telephone
         };
 
         await _collection.ReplaceOneAsync(filter, updatedUser);

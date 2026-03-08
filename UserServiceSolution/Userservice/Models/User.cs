@@ -11,27 +11,28 @@ public class User
     public Guid Id { get; set; }
 
     [Required]
-    public string givenName { get; set; }
+    public string GivenName { get; set; }
 
     [Required]
-    public string familyName { get; set; }
+    public string FamilyName { get; set; }
 
     [Required]
     public string Address1 { get; set; }
 
     public string? Address2 { get; set; }
-
+    
+    [Required]
     public short PostalCode { get; set; }
 
     [Required]
-    public string faxNumber { get; set; }
+    public string FaxNumber { get; set; }
 
     [Required]
     public string City { get; set; }
 
     [Required]
-    public string email { get; set; }
+    public string Email { get; set; }
 
     [Required]
-    public string telephone { get; set; }
+    public string Telephone { get; set; }
 }
