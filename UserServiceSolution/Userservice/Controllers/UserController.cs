@@ -16,17 +16,26 @@ public class UserController : ControllerBase
     {
         _logger = logger;
         _userRepository = userRepository;
+        var hostName = System.Net.Dns.GetHostName();
+        var ips = System.Net.Dns.GetHostAddresses(hostName);
+        var _ipaddr = ips.First().MapToIPv4().ToString();
+        _logger.LogInformation(1, $"Controllor besked - XYZ Service responding from {_ipaddr}");
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] UserDTO user)
     {
         if (!ModelState.IsValid)
+        {
+              _logger.LogWarning("Failed with creating user - invalid model state");
             return BadRequest(ModelState);
-
-        var createdUser = await _userRepository.CreateUser(user);
-
-        return Ok(createdUser);
+        }
+        else
+        {
+            var createdUser = await _userRepository.CreateUser(user);
+            _logger.LogInformation($"User created with id {createdUser.Id}");
+                    return Ok(createdUser);
+        }
     }
 
     [HttpGet("{id}")]
@@ -35,7 +44,10 @@ public class UserController : ControllerBase
         var user = await _userRepository.GetUserById(id);
 
         if (user == null)
+        {
+            _logger.LogWarning("Failed getting id som user");
             return NotFound("Bruger ikke fundet.");
+        }
 
         return Ok(user);
     }
@@ -43,20 +55,32 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var users = await _userRepository.GetAllUsers();
-        return Ok(users);
+        var user = await _userRepository.GetAllUsers();
+        
+        if (user == null)
+        {
+            _logger.LogWarning("Failed with creating user");
+            return NotFound("Bruger ikke fundet.");
+        }
+        return Ok(user);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UserDTO user)
     {
         if (!ModelState.IsValid)
+        {
+            _logger.LogWarning("Failed with updating user -  invalid model state");
             return BadRequest(ModelState);
+        }
 
         var updatedUser = await _userRepository.UpdateUser(id, user);
 
         if (updatedUser == null)
+        {
+            _logger.LogWarning("Failed to update user");
             return NotFound("Bruger ikke fundet.");
+        }
 
         return Ok(updatedUser);
     }
@@ -67,7 +91,10 @@ public class UserController : ControllerBase
         var deleted = await _userRepository.DeleteUser(id);
 
         if (!deleted)
+        {
+            _logger.LogWarning("Failed to delete user");
             return NotFound("Bruger ikke fundet.");
+        }
 
         return NoContent();
     }
