@@ -22,6 +22,7 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
     <PackageReference Include="MongoDB.Driver" Version="3.7.0" />
     <PackageReference Include="NLog" Version="6.1.1" />
+    <PackageReference Include="NLog.Targets.Loki" Version="2.4.1" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="6.1.2" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.12.48" />
   </ItemGroup>
@@ -34,6 +35,9 @@
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
