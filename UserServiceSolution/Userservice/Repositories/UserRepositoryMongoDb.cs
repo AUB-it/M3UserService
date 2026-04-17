@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using Models;
 using MongoDB.Driver;
 using UserService.Repositories.Interfaces;
@@ -13,9 +14,12 @@ public class UserRepositoryMongoDb : IUserRepository
     private IMongoDatabase _database;
     private IMongoCollection<User> _collection;
     private ILogger<UserRepositoryMongoDb> _logger;
+    
+    private IMemoryCache _cache;
 
-    public UserRepositoryMongoDb(ILogger<UserRepositoryMongoDb> logger)
+    public UserRepositoryMongoDb(ILogger<UserRepositoryMongoDb> logger, IMemoryCache memoryCache)
     {
+        _cache = memoryCache;
         _logger = logger;
         _connectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
         _databaseName = Environment.GetEnvironmentVariable("MONGO_DATABASE_NAME");
@@ -56,7 +60,7 @@ public class UserRepositoryMongoDb : IUserRepository
             Email = user.Email,
             Telephone = user.Telephone
         };
-
+        _logger.LogDebug($"Creating user with username {user.Username} and userId {newUser.Id}");
         await _collection.InsertOneAsync(newUser);
 
         return newUser;
@@ -65,24 +69,38 @@ public class UserRepositoryMongoDb : IUserRepository
     // READ ONE
     public async Task<User?> GetUserById(Guid id)
     {
-        var filter = Builders<User>.Filter.Eq(u => u.Id, id);
-        return await _collection.Find(filter).FirstOrDefaultAsync();
+        var user = GetUserFromCache(id);
+        if (user == null)
+        {
+            var filter = Builders<User>.Filter.Eq(u => u.Id, id);
+            _logger.LogDebug($"Getting user with id {id} from database");
+            var userFromDb = await _collection.Find(filter).FirstOrDefaultAsync();
+            SetUserInCache(userFromDb);
+            return userFromDb;
+        }
+        _logger.LogDebug($"Getting user with id {id} from cache");
+        return user;
     }
 
     // READ ALL
     public async Task<List<User>> GetAllUsers()
     {
+        _logger.LogDebug($"Getting all users");
         return await _collection.Find(Builders<User>.Filter.Empty).ToListAsync();
     }
 
     // UPDATE
     public async Task<User?> UpdateUser(Guid id, UserDTO user)
     {
+        _logger.LogDebug($"Updating user with id {id}");
         var filter = Builders<User>.Filter.Eq(u => u.Id, id);
         var existingUser = await _collection.Find(filter).FirstOrDefaultAsync();
 
         if (existingUser == null)
+        {
+            _logger.LogError($"Could not find user with id {id} to update");
             return null;
+        }
 
         var updatedUser = new User
         {
@@ -106,9 +124,39 @@ public class UserRepositoryMongoDb : IUserRepository
     // DELETE
     public async Task<bool> DeleteUser(Guid id)
     {
+        _logger.LogDebug($"Deleting user with id {id}");
+        RemoveFromCache(id);
         var filter = Builders<User>.Filter.Eq(u => u.Id, id);
         var result = await _collection.DeleteOneAsync(filter);
 
         return result.DeletedCount > 0;
+    }
+    
+    // Cache funktioner
+    
+    private void SetUserInCache(User user)
+    {
+        _logger.LogDebug($"Setting user with id {user.Id} in cache");
+        var cacheExpiryOptions = new MemoryCacheEntryOptions
+        {
+            AbsoluteExpiration = DateTime.Now.AddHours(1),
+            SlidingExpiration = TimeSpan.FromMinutes(10),
+            Priority = CacheItemPriority.High
+        };
+        _cache.Set(user.Id, user, cacheExpiryOptions);
+    }
+    
+    private User? GetUserFromCache(Guid userId)
+    {
+        _logger.LogDebug($"Getting user with id {userId} from cache");
+        User user = null;
+        _cache.TryGetValue(userId, out user);
+        return user;
+    }
+    
+    private void RemoveFromCache(Guid userId)
+    {
+        _logger.LogDebug($"Removing user with id {userId} from cache");
+        _cache.Remove(userId);
     }
 }
