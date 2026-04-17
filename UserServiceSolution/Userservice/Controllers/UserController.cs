@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using UserService.Repositories.Interfaces;
@@ -11,15 +12,33 @@ public class UserController : ControllerBase
 {
     private readonly ILogger<UserController> _logger;
     private IUserRepository _userRepository;
+    private IHttpClientFactory _httpClientFactory;
 
-    public UserController(ILogger<UserController> logger, IUserRepository userRepository)
+    public UserController(ILogger<UserController> logger, IUserRepository userRepository, IHttpClientFactory httpClientFactory)
     {
+        _httpClientFactory = httpClientFactory;
         _logger = logger;
         _userRepository = userRepository;
         var hostName = System.Net.Dns.GetHostName();
         var ips = System.Net.Dns.GetHostAddresses(hostName);
         var _ipaddr = ips.First().MapToIPv4().ToString();
         _logger.LogInformation(1, $"Controllor besked - XYZ Service responding from {_ipaddr}");
+    }
+
+    [HttpPost]
+    [Route("login")]
+    public async Task<IActionResult> Login([FromBody] LoginCredentials credentials)
+    {
+        var userResult = await _userRepository.TryLogin(credentials);
+        if (userResult == null)
+            return BadRequest();
+        // Call auth service to get JWT
+        var client = _httpClientFactory.CreateClient("authService");
+        var authResponse = await client.PostAsJsonAsync("auth", userResult);
+        if (!authResponse.IsSuccessStatusCode)
+            return Unauthorized();
+        var jwt = await authResponse.Content.ReadAsStringAsync();
+        return Ok(jwt);
     }
 
     [HttpPost]
@@ -38,6 +57,7 @@ public class UserController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -52,6 +72,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -65,6 +86,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UserDTO user)
     {
@@ -85,6 +107,7 @@ public class UserController : ControllerBase
         return Ok(updatedUser);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

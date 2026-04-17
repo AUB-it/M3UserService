@@ -4,7 +4,7 @@ using UserService.Repositories.Interfaces;
 
 namespace UserService.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepositoryMongoDb : IUserRepository
 {
     private readonly string _connectionString;
     private readonly string _databaseName;
@@ -12,9 +12,11 @@ public class UserRepository : IUserRepository
     private MongoClient _client;
     private IMongoDatabase _database;
     private IMongoCollection<User> _collection;
+    private ILogger<UserRepositoryMongoDb> _logger;
 
-    public UserRepository()
+    public UserRepositoryMongoDb(ILogger<UserRepositoryMongoDb> logger)
     {
+        _logger = logger;
         _connectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
         _databaseName = Environment.GetEnvironmentVariable("MONGO_DATABASE_NAME");
 
@@ -23,12 +25,28 @@ public class UserRepository : IUserRepository
         _collection = _database.GetCollection<User>("Users");
     }
 
+    public async Task<User?> TryLogin(LoginCredentials credentials)
+    {
+        _logger.LogDebug($"Trying to login user {credentials.Username}");
+        Console.WriteLine($"{credentials.Username}, {credentials.Password}");
+        var filter = Builders<User>.Filter.Eq("Username", credentials.Username);
+        var filter2 = Builders<User>.Filter.Eq("Password", credentials.Password);
+        var finalFilter = Builders<User>.Filter.And(filter, filter2);
+        
+        var result = await _collection.Find(finalFilter).FirstOrDefaultAsync();
+        Console.WriteLine($"{result.Username} {result.Password}");
+        return result;
+    }
+
     // CREATE
     public async Task<User> CreateUser(UserDTO user)
     {
+        // Password burde hashes men whatever
         var newUser = new User
         {
             Id = Guid.NewGuid(),
+            Username = user.Username,
+            Password = user.Password,
             GivenName = user.GivenName,
             FamilyName = user.FamilyName,
             Address1 = user.Address1,

@@ -4,6 +4,7 @@ namespace UserService.Repositories.Interfaces;
 
 public interface IUserRepository
 {
+    Task<User?> TryLogin(LoginCredentials credentials);
     Task<User> CreateUser(UserDTO user);
     Task<User?> GetUserById(Guid id);
     Task<List<User>> GetAllUsers();

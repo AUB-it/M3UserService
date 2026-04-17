@@ -4,6 +4,10 @@ namespace Models;
 
 public class UserDTO
 {
+    [Required]
+    public string Username { get; set; }
+    [Required]
+    public string Password { get; set; }
     [Required(ErrorMessage = "This field is REALLY REQUIRED FR")]
     [StringLength(50, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 50 characters long")]
     public string GivenName { get; set; } = "";
