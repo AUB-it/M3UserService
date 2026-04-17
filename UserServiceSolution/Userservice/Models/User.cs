@@ -9,7 +9,6 @@ public class User
     [BsonId]
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid Id { get; set; }
-    
     [Required]
     public string Username { get; set; }
     
