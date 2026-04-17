@@ -34,7 +34,6 @@ public class UserRepositoryMongoDb : IUserRepository
         var finalFilter = Builders<User>.Filter.And(filter, filter2);
         
         var result = await _collection.Find(finalFilter).FirstOrDefaultAsync();
-        Console.WriteLine($"{result.Username} {result.Password}");
         return result;
     }
 
