@@ -17,7 +17,7 @@ Env.Load(); // loader .env
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings()
     .GetCurrentClassLogger();
 
-var EndPoint = "https://localhost:8201/";
+var EndPoint = Environment.GetEnvironmentVariable("VAULT_ENDPOINT") ?? "https://localhost:8201/";
 logger.Debug("Connecting to Hashicorp Vault on: {0}", EndPoint);
 var httpClientHandler = new HttpClientHandler();
 httpClientHandler.ServerCertificateCustomValidationCallback =
@@ -65,7 +65,7 @@ try
 
     builder.Services.AddHttpClient("authService", client =>
     {
-        client.BaseAddress = new Uri(builder.Configuration["AuthService:BaseURL"]);
+        client.BaseAddress = new Uri( Environment.GetEnvironmentVariable("AUTHSERVICE_ULR") ?? "http://localhost:5294/");
     });
     
     // OpenAPI

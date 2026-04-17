@@ -40,7 +40,7 @@ public class UserController : ControllerBase
         var jwt = await authResponse.Content.ReadAsStringAsync();
         return Ok(jwt);
     }
-
+    
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] UserDTO user)
     {
