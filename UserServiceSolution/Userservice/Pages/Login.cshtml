@@ -1,0 +1,26 @@
+﻿@page "/pages/login"
+@model UserService.Pages.LoginModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h2>Login</h2>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="creds.Username" class="form-label"></label>
+        <input asp-for="creds.Username" class="form-control" />
+        <span asp-validation-for="creds.Username" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="creds.Password" class="form-label"></label>
+        <input asp-for="creds.Password" type="password" class="form-control" />
+        <span asp-validation-for="creds.Password" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>

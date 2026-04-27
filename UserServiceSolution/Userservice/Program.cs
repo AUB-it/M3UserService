@@ -1,7 +1,9 @@
 using System.Text;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using Scalar.AspNetCore;
 using UserService.Repositories;
 using UserService.Repositories.Interfaces;
@@ -60,8 +62,22 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
+    var gatewayUrl = builder.Configuration["GatewayUrl"] ?? "http://nginx:4000/userservices/";
+    builder.Services.AddHttpClient("HaavGateway", client =>
+    {
+        client.BaseAddress = new Uri(gatewayUrl);
+        client.DefaultRequestHeaders.Add(
+            HeaderNames.Accept, "application/json");
+    });
+    
     // Add services to the container.
     builder.Services.AddControllers();
+
+
+    builder.Services.AddRazorPages(options =>
+    {
+        options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
+    });
     
     builder.Services.AddMemoryCache();
 
@@ -100,11 +116,15 @@ try
         app.MapOpenApi();
         app.MapScalarApiReference();
     }
-
+    
     app.UseHttpsRedirection();
 
     app.MapControllers();
 
+    app.UseStaticFiles();
+    app.MapGet("/", () => Results.Redirect("/userservices/pages/home"));
+    app.MapRazorPages();
+    
     app.Run();
 }
 catch (Exception ex)

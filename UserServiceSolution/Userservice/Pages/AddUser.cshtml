@@ -1,0 +1,80 @@
+﻿@page "/pages/user/add"
+@model UserService.Pages.AddUserModel
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<h2>Create User</h2>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="User.Username" class="form-label"></label>
+        <input asp-for="User.Username" class="form-control" />
+        <span asp-validation-for="User.Username" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="User.Password" class="form-label"></label>
+        <input asp-for="User.Password" type="password" class="form-control" />
+        <span asp-validation-for="User.Password" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="User.GivenName" class="form-label"></label>
+        <input asp-for="User.GivenName" class="form-control" />
+        <span asp-validation-for="User.GivenName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="User.FamilyName" class="form-label"></label>
+        <input asp-for="User.FamilyName" class="form-control" />
+        <span asp-validation-for="User.FamilyName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="User.Address1" class="form-label"></label>
+        <input asp-for="User.Address1" class="form-control" />
+        <span asp-validation-for="User.Address1" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="User.Address2" class="form-label"></label>
+        <input asp-for="User.Address2" class="form-control" />
+        <span asp-validation-for="User.Address2" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="User.PostalCode" class="form-label"></label>
+        <input asp-for="User.PostalCode" type="number" class="form-control" />
+        <span asp-validation-for="User.PostalCode" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="User.FaxNumber" class="form-label"></label>
+        <input asp-for="User.FaxNumber" class="form-control" />
+        <span asp-validation-for="User.FaxNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="User.City" class="form-label"></label>
+        <input asp-for="User.City" class="form-control" />
+        <span asp-validation-for="User.City" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="User.Email" class="form-label"></label>
+        <input asp-for="User.Email" type="email" class="form-control" />
+        <span asp-validation-for="User.Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="User.Telephone" class="form-label"></label>
+        <input asp-for="User.Telephone" class="form-control" />
+        <span asp-validation-for="User.Telephone" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create User</button>
+</form>
