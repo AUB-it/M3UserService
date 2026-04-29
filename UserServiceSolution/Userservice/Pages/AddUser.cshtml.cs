@@ -19,9 +19,18 @@ namespace UserService.Pages
 
         public async Task<IActionResult> OnPost()
         {
+            Console.WriteLine("On post was hit");
+            foreach (var item in Request.Form)
+            {
+                Console.WriteLine($"{item.Key}: {item.Value}");
+            }
+
+            Console.WriteLine($"Username after binding: {User.Username}");
+            Console.WriteLine($"Email after binding: {User.Email}");
+            
             if (!ModelState.IsValid)
             {
-                return Page();
+                Console.WriteLine(ModelState.ErrorCount);
             }
 
             var newUser = new User
@@ -45,14 +54,14 @@ namespace UserService.Pages
             {
                 var res = await client.PostAsJsonAsync("user", newUser);
                 if (res.IsSuccessStatusCode)
-                    return RedirectToPage("/pages/user/list");
+                    return RedirectToPage("/UserList");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
             
-            return RedirectToPage("/pages/home");
+            return RedirectToPage("/Home");
             
         }
     }

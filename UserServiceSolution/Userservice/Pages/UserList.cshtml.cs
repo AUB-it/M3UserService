@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Models;
 
@@ -14,6 +15,13 @@ namespace UserService.Pages
             using HttpClient? client = _clientFactory?.CreateClient("HaavGateway");
             try
             {
+                var token = Request.Cookies["access_token"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    Console.WriteLine("CoOkiE Is nOt FoUnd, JwT is NOt FoUND");
+                }
+                Console.WriteLine($"{token}");
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
                 Users = client?.GetFromJsonAsync<List<User>>(
                     "user").Result;
             }

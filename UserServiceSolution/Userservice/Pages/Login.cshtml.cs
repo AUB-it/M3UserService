@@ -21,6 +21,7 @@ namespace UserService.Pages
         {
             if (!ModelState.IsValid)
             {
+                Console.WriteLine("Model state is not valid");
                 return Page();
             }
 
@@ -31,14 +32,25 @@ namespace UserService.Pages
             {
                 var res = await client.PostAsJsonAsync("user/login", credentials);
                 if (res.IsSuccessStatusCode)
-                    return RedirectToPage("/pages/user/list");
+                {
+                    var jwtToken = await res.Content.ReadFromJsonAsync<string>();
+                    Response.Cookies.Append("access_token", jwtToken, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = false,
+                        SameSite = SameSiteMode.Lax,
+                        Path = "/userservices",
+                        MaxAge = TimeSpan.FromHours(1)
+                    });
+                    return RedirectToPage("/UserList");
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
             
-            return RedirectToPage("/pages/home");
+            return RedirectToPage("/Home");
             
         }
     }

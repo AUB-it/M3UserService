@@ -116,7 +116,12 @@ try
         app.MapOpenApi();
         app.MapScalarApiReference();
     }
-    
+
+    app.Use((context, next) =>
+    {
+        context.Request.PathBase = "/userservices";
+        return next();
+    });
     app.UseHttpsRedirection();
 
     app.MapControllers();
